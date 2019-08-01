@@ -3,7 +3,7 @@ const utils = require('./utils.js');
 const possibleColor = ["bleu", "blue", "red", "rouge", "yellow", "jaune"];
 
 // fct permettant la gestion du choix de couleurs d'équipe
-exports.changeUserColor = function (color, msg) {
+exports.changeUserColor = function (color, msg, cmd) {
   // liste des rôles pour la couleur
   const blue = msg.guild.roles.find(role => role.name === "Blue team");
   const red = msg.guild.roles.find(role => role.name === "Red team");

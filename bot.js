@@ -2,6 +2,7 @@ let Discord = require('discord.js');
 let logger = require('winston');
 let auth = require('./data/auth.json');
 let colorManager = require('./main/colorManager.js');
+let channelManager = require('./main/channelManager.js');
 let Promise = require('promise');
 
 // Configure logger settings
@@ -25,8 +26,12 @@ client.on('message', (msg) => {
         args = args.splice(1);
 
         switch (cmd) {
-            case "team", "equipe":
-                colorManager.changeUserColor(args[0], msg);
+            case "team":
+            case "equipe":
+                colorManager.changeUserColor(args[0], msg, cmd);
+                break;
+            case "raid":
+                channelManager.createChannel(args[0], msg, client);
                 break;
         }
     }
