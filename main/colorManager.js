@@ -20,28 +20,23 @@ exports.changeUserColor = function (color, msg, cmd) {
         // attribution de la nouvelle couleur
         switch (color) {
           case "blue":
-            changeColorTo(blue, msg);
-            break;
           case "bleu":
             changeColorTo(blue, msg);
             break;
           case "red":
-            changeColorTo(red, msg);
-            break;
           case "rouge":
             changeColorTo(red, msg);
             break;
           case "yellow":
-            changeColorTo(yellow, msg);
-            break;
           case "jaune":
             changeColorTo(yellow, msg);
             break;
         }
       }).catch((err) => console.log(err));
     } else {
-      msg.channel.send("Couleur invalide ! Veuillez choisir parmis les couleurs suivantes : " +
-        possibleColor.join(', '));
+        const mention = "<@" + member.user.id + ">";
+        msg.channel.send(mention + " Couleur invalide ! Veuillez choisir "
+            + "parmis les couleurs suivantes : " + possibleColor.join(', '));
     }
   }
 }
