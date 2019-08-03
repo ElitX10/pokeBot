@@ -3,7 +3,6 @@ let logger = require('winston');
 let auth = require('./data/auth.json');
 let colorManager = require('./main/colorManager.js');
 let channelManager = require('./main/channelManager.js');
-let Promise = require('promise');
 
 // Configure logger settings
 logger.remove(logger.transports.Console);
