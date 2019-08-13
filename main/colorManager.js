@@ -34,8 +34,7 @@ exports.changeUserColor = function (color, msg, cmd) {
         }
       }).catch((err) => console.log(err));
     } else {
-        const mention = "<@" + member.user.id + ">";
-        msg.channel.send(mention + " Couleur invalide ! Veuillez choisir "
+        msg.channel.send(utils.mention(msg) + "Couleur invalide ! Veuillez choisir "
             + "parmis les couleurs suivantes : " + possibleColor.join(', '));
     }
   }

@@ -1,11 +1,13 @@
 {"gyms" :[
     {
         "name": "notre dame de bellecombe",
+        "alias": "bellecombe",
         "address": "57 Rue d'Inkermann, 69006 Lyon",
         "maps": "45.76619,4.865899"
     },
     {
         "name": "plaque de la villette",
+        "alias": "plaque",
         "address": "306 Rue Saint-Antoine, 69003 Lyon",
         "maps": "45.762766,4.862172"
     }

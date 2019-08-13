@@ -30,8 +30,10 @@ client.on('message', (msg) => {
                 colorManager.changeUserColor(args[0], msg, cmd);
                 break;
             case "raid":
-                channelManager.createChannel(args, msg, client);
+                channelManager.createChannel(args, msg);
                 break;
+            case "liste":
+                channelManager.list(args[0], msg);
         }
     }
 });
