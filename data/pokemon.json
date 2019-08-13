@@ -1,3 +1,50 @@
-{
-  name: "rayquaza"
-}
+{"pokemonList": [
+    {
+        "name": "rayquaza",
+        "isEgg": false,
+        "level": 5,
+        "isActif": true
+    },
+    {
+        "name": "lixy",
+        "isEgg": false,
+        "level": 1,
+        "isActif": true
+    },
+    {
+        "name": "kyogre",
+        "isEgg": false,
+        "level": 5,
+        "isActif": false
+    },
+    {
+        "name": "egg1",
+        "isEgg": true,
+        "level": 1,
+        "isActif": true
+    },
+    {
+        "name": "egg2",
+        "isEgg": true,
+        "level": 2,
+        "isActif": true
+    },
+    {
+        "name": "egg3",
+        "isEgg": true,
+        "level": 3,
+        "isActif": true
+    },
+    {
+        "name": "egg4",
+        "isEgg": true,
+        "level": 4,
+        "isActif": true
+    },
+    {
+        "name": "egg5",
+        "isEgg": true,
+        "level": 5,
+        "isActif": true
+    }
+]}
