@@ -1,17 +1,17 @@
 const fs = require('fs');
+const utils = require('./utils.js');
+
 const pokemonList = JSON.parse(fs.readFileSync('././data/pokemon.json')).pokemonList.filter(pokemon => {
     return pokemon.isActif;
 }).sort((a,b) => {
     return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
 });
+
 const gymsList = JSON.parse(fs.readFileSync('././data/gyms.json')).gyms.sort((a,b) => {
     return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
 });
-const utils = require('./utils.js');
 
 exports.createChannel = function (args, msg) {
-    // todo check si on est dans le bon channel pour la cmd
-
     if(utils.checkChannel("raids-trouvés", "!raid", msg)){
         var server = msg.guild;
 
@@ -42,7 +42,6 @@ exports.createChannel = function (args, msg) {
                     channel.setParent(server.channels.find(channel => channel.name === "raids").id);
 
                     // premier message du salon
-                    // TODO : mettre toutes les infos sur le raid
                     channelInfoMessage(pokemon, gym, startTime, channel);
 
                     // suppression du salon après le raid
@@ -117,7 +116,6 @@ getRefactorArgs = function(args){
     }
 }
 
-// TODO : check si le poke est tjrs actif dans les raids
 // vérifie que le pokemon existe (dans le json)
 checkPokemon = function(pokeName) {
     return new Promise(function(resolve, reject) {
@@ -197,7 +195,11 @@ channelInfoMessage = function(pokemon, arene, startTime, channel){
     msg += "\n**Adresse** : " + arene.address;
     msg += "\n**Google Maps** : https://www.google.com/maps?daddr=" + arene.maps;
 
-    channel.send(msg);
+    channel.send(msg).then(res => {
+        // pour épingler le message
+        res.pin();
+    });
+
 }
 
 // pour le format des minutes inférieurs à 10 min
