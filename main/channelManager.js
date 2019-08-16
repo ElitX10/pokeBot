@@ -13,7 +13,7 @@ const gymsList = JSON.parse(fs.readFileSync('././data/gyms.json')).gyms.sort((a,
 
 exports.createChannel = function (args, msg) {
     if(utils.checkChannel("raids-trouvés", "!raid", msg)){
-        var server = msg.guild;
+        const server = msg.guild;
 
         const pokemonName = args[0];
         const arenaName = args[1];
@@ -39,48 +39,52 @@ exports.createChannel = function (args, msg) {
                 server.createChannel(channelName, {type: "text"}).then((res) => {
                     const channel = res;
                     // on met le salon dans la catégorie pour les raids
-                    channel.setParent(server.channels.find(channel => channel.name === "raids").id);
+                    channel.setParent(server.channels.find(channel => channel.name === "raids").id)
+                            .catch((err) => console.log(err));
 
-                    // premier message du salon
+                    // premiers message du salon
                     channelInfoMessage(pokemon, gym, startTime, channel);
+                    createParticipantMessage(channel);
 
                     // suppression du salon après le raid
                     // TODO : faire mieux en fct de si il y a encore des msg
                     setTimeout(function () {
-                        channel.send("Le salon va être supprimé dans 1 minute.");
+                        channel.send("Le salon va être supprimé dans 1 minute.").catch((err) => console.log(err));
                         setTimeout(function(){
-                            channel.delete();
+                            channel.delete().catch((err) => console.log(err));
                         }, 60 * 1000);
                     }, 110 * 60 * 1000);
 
                     msg.react('✅');
                 }).catch((err) => console.log(err));
             } else {
-                msg.channel.send(utils.mention(msg) + "Un salon existe déjà pour ce raid.");
+                msg.channel.send(utils.mention(msg) + "Un salon existe déjà pour ce raid.")
+                    .catch((err) => console.log(err));
             }
         }).catch((err) => {
-            msg.channel.send(utils.mention(msg) + err);
+            msg.channel.send(utils.mention(msg) + err).catch((err) => console.log(err));
         });
     }
 }
 
+// permet de lister les pokemon et arènes pour les raids
 exports.list = function(arg, msg){
     if(utils.checkChannel("raids-trouvés", "!raid", msg)){
         let list = utils.mention(msg);
         if(arg === "arenes" || arg === "arènes") {
-            list += "\n**Liste des arènes** : *Nom complet* / *Nom raccourci*"
-            gymsList.forEach(function(gym){
-                list += "\n" + gym.name + " / " + gym.alias;
-            });
+            list += "\n**Liste des arènes** : *Nom complet* / *Nom raccourci*";
+            list += gymsList.map((gym) => {
+                return "\n" + gym.name + " / " + gym.alias;
+            }).join('');
         }else if (arg === "pokemon") {
-            list += "\n**Liste des Pokemon** : *Nom* (*Niveau*)"
-            pokemonList.filter(pok => !pok.isEgg).forEach(function(pokemon){
-                list += "\n" + pokemon.name + " (" + pokemon.level + ")";
-            });
+            list += "\n**Liste des Pokemon** : *Nom* (*Niveau*)";
+            list += pokemonList.filter(pok => !pok.isEgg).map((pokemon) => {
+                return "\n" + pokemon.name + " (" + pokemon.level + ")";
+            }).join('');
         }else {
             list += "Liste inconnue : vous pouvez lister 'pokemon' ou 'arenes'."
         }
-        msg.channel.send(list);
+        msg.channel.send(list).catch((err) => console.log(err));
     }
 }
 
@@ -197,9 +201,8 @@ channelInfoMessage = function(pokemon, arene, startTime, channel){
 
     channel.send(msg).then(res => {
         // pour épingler le message
-        res.pin();
-    });
-
+        res.pin().catch((err) => console.log(err));
+    }).catch((err) => console.log(err));
 }
 
 // pour le format des minutes inférieurs à 10 min
@@ -210,4 +213,16 @@ zeroForMinutes = function(time){
 // retourne une date avec un décalage en minute (min)
 addMinToTime = function(time, min){
     return new Date(time.getTime() + min * 60 * 1000);
+}
+
+// création du message pour gérer la participation des joueurs aux raids
+createParticipantMessage = function(channel){
+    let msg = "**Liste des participants** : ";
+    msg += "\n**TOTAL** : " + utils.valor + " x**0** | "
+        + utils.mystic + " x**0** | "+ utils.instinct +" x**0** ";
+
+    channel.send(msg).then(res => {
+        // pour épingler le message
+        res.pin().catch((err) => console.log(err));
+    }).catch((err) => console.log(err));
 }

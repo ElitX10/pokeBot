@@ -3,6 +3,7 @@ let logger = require('winston');
 let auth = require('./data/auth.json');
 let colorManager = require('./main/colorManager.js');
 let channelManager = require('./main/channelManager.js');
+let participationManager = require('./main/participationManager.js');
 
 // Configure logger settings
 logger.remove(logger.transports.Console);
@@ -19,21 +20,31 @@ client.on('ready', () => {
 });
 
 client.on('message', (msg) => {
-    if (msg.content.substring(0, 1) === "!") {
+    const symbole = msg.content.substring(0, 1);
+    if (["!", "+", "-"].includes(symbole)) {
         let args = msg.content.substring(1).split(' ');
         let cmd = args[0];
         args = args.splice(1);
 
-        switch (cmd) {
-            case "team":
-            case "equipe":
-                colorManager.changeUserColor(args[0], msg, cmd);
-                break;
-            case "raid":
-                channelManager.createChannel(args, msg);
-                break;
-            case "liste":
-                channelManager.list(args[0], msg);
+        if (symbole === "!") {
+            switch (cmd) {
+                case "team":
+                case "equipe":
+                    colorManager.changeUserColor(args[0], msg, cmd);
+                    break;
+                case "raid":
+                    channelManager.createChannel(args, msg);
+                    break;
+                case "liste":
+                    channelManager.list(args[0], msg);
+                    break;
+                case "pokemon":
+                    //TODO : cmd pour indique le pokemon dans un raid (si egg)
+                    break;
+            }
+        } else {
+            participationManager.handleParticipation(args, msg);
         }
     }
+    if(msg.type === "PINS_ADD") msg.delete().catch((err) => console.log(err));
 });
