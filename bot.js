@@ -23,10 +23,10 @@ client.on('message', (msg) => {
     const symbole = msg.content.substring(0, 1);
     if (["!", "+", "-"].includes(symbole)) {
         let args = msg.content.substring(1).split(' ');
-        let cmd = args[0];
-        args = args.splice(1);
 
         if (symbole === "!") {
+            let cmd = args[0];
+            args = args.splice(1);
             switch (cmd) {
                 case "team":
                 case "equipe":
@@ -43,7 +43,7 @@ client.on('message', (msg) => {
                     break;
             }
         } else {
-            participationManager.handleParticipation(args, msg);
+            participationManager.handleParticipation(symbole, args, msg);
         }
     }
     if(msg.type === "PINS_ADD") msg.delete().catch((err) => console.log(err));

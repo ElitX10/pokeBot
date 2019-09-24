@@ -39,12 +39,10 @@ exports.createChannel = function (args, msg) {
                 server.createChannel(channelName, {type: "text"}).then((res) => {
                     const channel = res;
                     // on met le salon dans la catégorie pour les raids
-                    channel.setParent(server.channels.find(channel => channel.name === "raids").id)
-                            .catch((err) => console.log(err));
+                    channel.setParent(utils.getRaidCatId(server)).catch((err) => console.log(err));
 
                     // premiers message du salon
                     channelInfoMessage(pokemon, gym, startTime, channel);
-                    createParticipantMessage(channel);
 
                     // suppression du salon après le raid
                     // TODO : faire mieux en fct de si il y a encore des msg
@@ -141,6 +139,7 @@ checkGym = function(gymName) {
 };
 
 // vérifie s'il y a une heure valide de renseignée
+// TODO : check si l'heure est valide !!!
 checkStartTime = function(startTime) {
     return new Promise(function(resolve, reject) {
         startTime ? resolve(startTime) : reject("Le format de l'heure est invalide : "
@@ -171,14 +170,16 @@ hasDuplicates = function(channelName, channels) {
 
 // converti un string au format 00h00, 00:00 ou 10min en Date
 stringToDate = function(timeString) {
-    const regexFullTime = /^\d{1,2}(h|:)\d{1,2}$/gi;
+    const regexFullTime = /^\d{1,2}(h|:)\d{0,2}$/gi;
     const regexMin = /^\d{1,2}(m(in)?)?$/gi;
     let time = null;
 
     if (regexFullTime.test(timeString)) {
         time = new Date();
-        time.setHours(parseInt(timeString.split(/h|:/i)[0]));
-        time.setMinutes(parseInt(timeString.split(/h|:/i)[1]));
+        const hour = timeString.split(/h|:/i)[0];
+        const minute = timeString.split(/h|:/i)[1] ? timeString.split(/h|:/i)[1] : "0";
+        time.setHours(parseInt(hour));
+        time.setMinutes(parseInt(minute));
     } else if (regexMin.test(timeString)) {
         time = new Date();
         const minToAdd = parseInt(timeString);
@@ -202,6 +203,7 @@ channelInfoMessage = function(pokemon, arene, startTime, channel){
     channel.send(msg).then(res => {
         // pour épingler le message
         res.pin().catch((err) => console.log(err));
+        createParticipantMessage(channel);
     }).catch((err) => console.log(err));
 }
 
@@ -217,7 +219,7 @@ addMinToTime = function(time, min){
 
 // création du message pour gérer la participation des joueurs aux raids
 createParticipantMessage = function(channel){
-    let msg = "**Liste des participants** : ";
+    let msg = "**Liste des participants** : \nSession : 15h24\ntest datat\ntestd datat\nSession : 18h24\ntest datpppat";
     msg += "\n**TOTAL** : " + utils.valor + " x**0** | "
         + utils.mystic + " x**0** | "+ utils.instinct +" x**0** ";
 

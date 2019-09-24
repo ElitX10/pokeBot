@@ -1,7 +1,154 @@
 const utils = require('./utils.js');
 
-exports.handleParticipation = function(args, msg){
+exports.handleParticipation = function(cmd, args, msg){
     const server = msg.guild;
+    if(msg.channel.parentID === utils.getRaidCatId(server)){
+        getParticipationMsg(msg.channel).then((participationMsg) => {
+            let messContent = participationMsg.content;
+            let participantData = getParticipantData(messContent);
+            const userMessageData = getMsgData(args, msg);
 
-    
+            console.log(participantData);
+            console.log(userMessageData);
+
+            const msgHasSessionsTime = false;
+            const sessionExist = false;
+            const noSession = false;
+            if(msgHasSessionsTime){ //TODO gérer les sessions
+                if (sessionExist){
+                    // TODO prendre la section
+                } else {
+                    // TODO créer la session
+                }
+            } else {
+                // TODO trouver la session avec le plus de joueur
+            }
+            // TODO check cmd format
+            if(cmd === "+"){
+                const splitMsg = messContent.split('\n');
+                const msgStart = splitMsg[0];
+
+                // const nbr = getNumber(parseInt(args[0]));
+                // const userName = msg.member.nickname;
+                // const color = getColor(msg.member);
+                // const comment = args.splice(1).join(' ');
+                //
+                // let users = '\n' + nbr + ' ' + color + ' **' + userName + '** ' + comment + '\n';
+
+                // const mess = msgStart + users + msgEnd;
+                // participationMsg.edit(mess).catch(err=>console.log(err));
+            } else {
+                let msg = "**Liste des participants** :";
+                msg += "\n**TOTAL** : " + utils.valor + " x**0** | "
+                    + utils.mystic + " x**0** | "+ utils.instinct +" x**0** ";
+                participationMsg.edit(msg).catch(err=>console.log(err));
+            }
+
+        }).catch(err => console.log(err));
+    }
+}
+
+// récupère le message pour la participation à un raid
+getParticipationMsg = function(channel){
+    return new Promise(function(resolve, reject){
+        channel.fetchPinnedMessages().then(res => {
+            const participationMsg = res.find(mess => {
+                return mess.content.split('\n')[0] === "**Liste des participants** :";
+            });
+            resolve(participationMsg);
+        }).catch(err => reject(err));
+    });
+}
+
+getParticipantData = function(msgContent){
+    let data = msgContent.split('\n');
+    data = data.slice(1, data.length - 1);
+    let finalData;
+    if (isSessionDelimiter(data[0])) { //TODO faire une fct pour ca !!!
+        finalData = [];
+        let customSession;
+        data.forEach(item => {
+            if(isSessionDelimiter(item)){
+                if(customSession) finalData.push(customSession);
+                customSession = {
+                    time: item.split(' : ')[1],
+                    users: []
+                }
+            } else {
+                customSession.users.push(item); // TODO mettre le string en objet :)
+            }
+        });
+        finalData.push(customSession);
+    } else {
+        finalData = [{
+            time: null,
+            users: data.map(user => {
+                return getUserData(user);
+            })
+        }];
+    }
+
+    // console.log(finalData);
+    // console.log(finalData[0].users);
+    return finalData;
+}
+
+convertDataToString = function(data){
+
+}
+
+isSessionDelimiter = function(string){
+    return string.split(' : ')[0] === "Session"
+}
+
+getUserData = function(string){
+    let dataString = string.split(' ');
+    let nbr = dataString[0];
+    if(utils.emojiListNumber.includes(nbr)){
+        nbr = utils.emojiListNumber.indexOf(nbr) + 1;
+    } else {
+        nbr = parseInt(nbr.replace(/\*/g, ''));
+    }
+    const team = dataString[1];
+    dataString = dataString.splice(2).join(' ').split("**");
+    const userName = dataString[1];
+    const comment = dataString.splice(2).join('');
+
+    return {
+        number: nbr,
+        team: team,
+        user: userName,
+        comment: comment.replace(/^\s*/, '')
+    }
+}
+
+getMsgData = function(args, msg){
+    const nbr = parseInt(args[0]);
+    const userName = msg.member.nickname ? msg.member.nickname : msg.member.userName;
+    const team = getColor(msg.member);
+    const comment = args.splice(1).join(' ');
+
+    return {
+        number: nbr,
+        team: team,
+        user: userName,
+        comment: comment.replace(/^\s*/, '')
+    }
+}
+
+getColor = function(member){
+    let color = utils.questionMark;
+    if (member.roles.find(r => r.name === "Red team")) {
+        color = utils.valor;
+    } else if (member.roles.find(r => r.name === "Blue team")) {
+        color = utils.mystic;
+    } else if (member.roles.find(r => r.name === "Yellow team")) {
+        color = utils.instinct;
+    }
+    return color;
+}
+
+getNumber = function(number) {
+    return utils.emojiListNumber[number - 1] ?
+            utils.emojiListNumber[number - 1] : '**' + number + '**';
 }
