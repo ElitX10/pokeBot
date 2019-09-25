@@ -8,15 +8,26 @@ exports.handleParticipation = function(cmd, args, msg){
             let participantData = getParticipantData(messContent);
             const userMessageData = getMsgData(args, msg);
 
-            console.log(participantData);
+            // console.log(participantData);
             console.log(userMessageData);
+
+            checkTime(userMessageData.time, msg.channel.name).then((time) => {
+                if (time){
+                    console.log(time);
+                } else {
+
+                }
+            }).catch((err) => {
+                // TODO : message du bot ?
+                console.log(err);
+            });
 
             const msgHasSessionsTime = false;
             const sessionExist = false;
             const noSession = false;
             if(msgHasSessionsTime){ //TODO gérer les sessions
                 if (sessionExist){
-                    // TODO prendre la section
+                    // TODO prendre la session
                 } else {
                     // TODO créer la session
                 }
@@ -60,11 +71,12 @@ getParticipationMsg = function(channel){
     });
 }
 
+// Récupère les données du message contenant les participations
 getParticipantData = function(msgContent){
     let data = msgContent.split('\n');
     data = data.slice(1, data.length - 1);
     let finalData;
-    if (isSessionDelimiter(data[0])) { //TODO faire une fct pour ca !!!
+    if (isSessionDelimiter(data[0])) {
         finalData = [];
         let customSession;
         data.forEach(item => {
@@ -75,7 +87,7 @@ getParticipantData = function(msgContent){
                     users: []
                 }
             } else {
-                customSession.users.push(item); // TODO mettre le string en objet :)
+                customSession.users.push(item);
             }
         });
         finalData.push(customSession);
@@ -101,6 +113,8 @@ isSessionDelimiter = function(string){
     return string.split(' : ')[0] === "Session"
 }
 
+// récupère les données d'un utilisateur à partir d'un
+// string du message contenant les participations
 getUserData = function(string){
     let dataString = string.split(' ');
     let nbr = dataString[0];
@@ -122,20 +136,31 @@ getUserData = function(string){
     }
 }
 
+// récupère les données du message de l'utilisateur
 getMsgData = function(args, msg){
     const nbr = parseInt(args[0]);
     const userName = msg.member.nickname ? msg.member.nickname : msg.member.userName;
     const team = getColor(msg.member);
-    const comment = args.splice(1).join(' ');
+    // on récupère l'heure de la session si elle existe
+    let time = null;
+    args = args.splice(1);
+    const regexp = /^\d{1,2}(h|:)\d{0,2}$/gi;
+    if(regexp.test(args[0])){
+        time = utils.stringToDate(args[0]);
+        args = args.splice(1);
+    }
+    const comment = args.join(' ');
 
     return {
         number: nbr,
         team: team,
         user: userName,
+        time: time,
         comment: comment.replace(/^\s*/, '')
     }
 }
 
+// récupère la couleur d'un utilisateur
 getColor = function(member){
     let color = utils.questionMark;
     if (member.roles.find(r => r.name === "Red team")) {
@@ -148,7 +173,22 @@ getColor = function(member){
     return color;
 }
 
+// récupère le nombre de participation
 getNumber = function(number) {
     return utils.emojiListNumber[number - 1] ?
             utils.emojiListNumber[number - 1] : '**' + number + '**';
+}
+
+// vérifie si l'heure de la session est comprise entre le début et la fin du raid
+checkTime = function(time, channelName){
+    return new Promise(function(resolve, reject){
+        const endTime = utils.stringToDate(channelName.split('-')[channelName.split('-').length - 1]);
+        const startTime = utils.addMinToTime(endTime, -utils.raidDuration);
+        if (!time) resolve(null);
+        if (time >= startTime && time < endTime){
+            resolve(time);
+        } else {
+            reject("Impossible de créer une session à " + utils.dateToString(time) + ".");
+        }
+    });
 }

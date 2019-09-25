@@ -29,10 +29,9 @@ exports.createChannel = function (args, msg) {
             const startTime = res[2];
 
             // création du nom du salon
-            const endTime = addMinToTime(startTime, 45);;
+            const endTime = utils.addMinToTime(startTime, utils.raidDuration);;
             const channelName = "0-" + pokemon.name + "-" + gym.name.split(' ').join('-')
-                                + "-fin-" + endTime.getHours() + "h"
-                                + zeroForMinutes(endTime) + endTime.getMinutes();
+                                + "-fin-" + utils.dateToString(endTime);
 
             // on vérifie si un salon n'a pas déjà été créé pour le raid
             if(!hasDuplicates(channelName, server.channels)){
@@ -103,10 +102,10 @@ getRefactorArgs = function(args){
     if(timeData){
         const param = timeData[0];
         timeData = timeData.substring(1);
-        startTime = stringToDate(timeData);
+        startTime = utils.stringToDate(timeData);
         if(startTime && (param === "@" || param === "$")){
-            // on enlève 45 min s'il s'agit de l'heure de fin en param
-            if(param === "$") startTime = addMinToTime(startTime, -45);
+            // on enlève le temps d'un raid s'il s'agit de l'heure de fin en param
+            if(param === "$") startTime = utils.addMinToTime(startTime, -utils.raidDuration);
         } else {
             startTime = null;
         }
@@ -153,13 +152,13 @@ checkStartTime = function(startTime) {
 hasDuplicates = function(channelName, channels) {
     let hasDuplicates = false;
     const channelNameData = channelName.split('-');
-    const endTime = stringToDate(channelNameData[channelNameData.length - 1]);
+    const endTime = utils.stringToDate(channelNameData[channelNameData.length - 1]);
     const pokeAndGym = channelNameData.splice(1, channelNameData.length - 3).join('-');
 
     const possibleDuplicates = channels.filter(channel => new RegExp(pokeAndGym, 'gi').test(channel.name));
     possibleDuplicates.forEach(function(duplicate){
         const duplicateNameData = duplicate.name.split('-');
-        const duplicateEndTime = stringToDate(duplicateNameData[duplicateNameData.length - 1]);
+        const duplicateEndTime = utils.stringToDate(duplicateNameData[duplicateNameData.length - 1]);
          // TODO : check si on peut avoir 2 salon si c'est longtemps apres / pb si jour différent !!!
         if(endTime.getTime() - duplicateEndTime.getTime() < 105 * 60 * 1000){
             hasDuplicates = true;
@@ -168,33 +167,11 @@ hasDuplicates = function(channelName, channels) {
     return hasDuplicates;
 }
 
-// converti un string au format 00h00, 00:00 ou 10min en Date
-stringToDate = function(timeString) {
-    const regexFullTime = /^\d{1,2}(h|:)\d{0,2}$/gi;
-    const regexMin = /^\d{1,2}(m(in)?)?$/gi;
-    let time = null;
-
-    if (regexFullTime.test(timeString)) {
-        time = new Date();
-        const hour = timeString.split(/h|:/i)[0];
-        const minute = timeString.split(/h|:/i)[1] ? timeString.split(/h|:/i)[1] : "0";
-        time.setHours(parseInt(hour));
-        time.setMinutes(parseInt(minute));
-    } else if (regexMin.test(timeString)) {
-        time = new Date();
-        const minToAdd = parseInt(timeString);
-        time = addMinToTime(time, minToAdd);;
-    }
-    return time;
-}
-
 // envoie les msg d'info pour les salons de raids
 channelInfoMessage = function(pokemon, arene, startTime, channel){
     let msg = "**Pokemon** : " + pokemon.name;
-    const endTime = addMinToTime(startTime, 45);
-    const time = startTime.getHours() + "h" + zeroForMinutes(startTime)
-                + startTime.getMinutes() + " -> " + endTime.getHours() + "h"
-                + zeroForMinutes(endTime) + endTime.getMinutes();
+    const endTime = utils.addMinToTime(startTime, utils.raidDuration);
+    const time = utils.dateToString(startTime) + " -> " + utils.dateToString(endTime);
     msg += "\n**Horaire** : " + time;
     msg += "\n**Arène** : " + arene.name;
     msg += "\n**Adresse** : " + arene.address;
@@ -207,19 +184,9 @@ channelInfoMessage = function(pokemon, arene, startTime, channel){
     }).catch((err) => console.log(err));
 }
 
-// pour le format des minutes inférieurs à 10 min
-zeroForMinutes = function(time){
-    return time.getMinutes() < 10 ? "0" : "";
-}
-
-// retourne une date avec un décalage en minute (min)
-addMinToTime = function(time, min){
-    return new Date(time.getTime() + min * 60 * 1000);
-}
-
 // création du message pour gérer la participation des joueurs aux raids
 createParticipantMessage = function(channel){
-    let msg = "**Liste des participants** : \nSession : 15h24\ntest datat\ntestd datat\nSession : 18h24\ntest datpppat";
+    let msg = "**Liste des participants** :\nSession : 15h24\ntest datat\ntestd datat\nSession : 18h24\ntest datpppat";
     msg += "\n**TOTAL** : " + utils.valor + " x**0** | "
         + utils.mystic + " x**0** | "+ utils.instinct +" x**0** ";
 
