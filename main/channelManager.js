@@ -1,19 +1,20 @@
 const fs = require('fs');
+const utils = require('./utils.js');
+const constants = require('./constants.js');
+
 const pokemonList = JSON.parse(fs.readFileSync('././data/pokemon.json')).pokemonList.filter(pokemon => {
     return pokemon.isActif;
 }).sort((a,b) => {
     return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
 });
+
 const gymsList = JSON.parse(fs.readFileSync('././data/gyms.json')).gyms.sort((a,b) => {
     return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
 });
-const utils = require('./utils.js');
 
 exports.createChannel = function (args, msg) {
-    // todo check si on est dans le bon channel pour la cmd
-
     if(utils.checkChannel("raids-trouvés", "!raid", msg)){
-        var server = msg.guild;
+        const server = msg.guild;
 
         const pokemonName = args[0];
         const arenaName = args[1];
@@ -29,59 +30,59 @@ exports.createChannel = function (args, msg) {
             const startTime = res[2];
 
             // création du nom du salon
-            const endTime = addMinToTime(startTime, 45);;
+            const endTime = utils.addMinToTime(startTime, constants.raidDuration);;
             const channelName = "0-" + pokemon.name + "-" + gym.name.split(' ').join('-')
-                                + "-fin-" + endTime.getHours() + "h"
-                                + zeroForMinutes(endTime) + endTime.getMinutes();
+                                + "-fin-" + utils.dateToString(endTime);
 
             // on vérifie si un salon n'a pas déjà été créé pour le raid
             if(!hasDuplicates(channelName, server.channels)){
                 server.createChannel(channelName, {type: "text"}).then((res) => {
                     const channel = res;
                     // on met le salon dans la catégorie pour les raids
-                    channel.setParent(server.channels.find(channel => channel.name === "raids").id);
+                    channel.setParent(utils.getRaidCatId(server)).catch((err) => console.log(err));
 
-                    // premier message du salon
-                    // TODO : mettre toutes les infos sur le raid
+                    // premiers message du salon
                     channelInfoMessage(pokemon, gym, startTime, channel);
 
                     // suppression du salon après le raid
                     // TODO : faire mieux en fct de si il y a encore des msg
                     setTimeout(function () {
-                        channel.send("Le salon va être supprimé dans 1 minute.");
+                        channel.send("Le salon va être supprimé dans 1 minute.").catch((err) => console.log(err));
                         setTimeout(function(){
-                            channel.delete();
+                            channel.delete().catch((err) => console.log(err));
                         }, 60 * 1000);
-                    }, 110 * 60 * 1000);
+                    }, (constants.raidDuration + constants.raidPreparationDuration + 10) * 60 * 1000);
 
                     msg.react('✅');
                 }).catch((err) => console.log(err));
             } else {
-                msg.channel.send(utils.mention(msg) + "Un salon existe déjà pour ce raid.");
+                msg.channel.send(utils.mention(msg) + "Un salon existe déjà pour ce raid.")
+                    .catch((err) => console.log(err));
             }
         }).catch((err) => {
-            msg.channel.send(utils.mention(msg) + err);
+            msg.channel.send(utils.mention(msg) + err).catch((err) => console.log(err));
         });
     }
 }
 
+// permet de lister les pokemon et arènes pour les raids
 exports.list = function(arg, msg){
     if(utils.checkChannel("raids-trouvés", "!raid", msg)){
         let list = utils.mention(msg);
         if(arg === "arenes" || arg === "arènes") {
-            list += "\n**Liste des arènes** : *Nom complet* / *Nom raccourci*"
-            gymsList.forEach(function(gym){
-                list += "\n" + gym.name + " / " + gym.alias;
-            });
+            list += "\n**Liste des arènes** : *Nom complet* / *Nom raccourci*";
+            list += gymsList.map((gym) => {
+                return "\n" + gym.name + " / " + gym.alias;
+            }).join('');
         }else if (arg === "pokemon") {
-            list += "\n**Liste des Pokemon** : *Nom* (*Niveau*)"
-            pokemonList.filter(pok => !pok.isEgg).forEach(function(pokemon){
-                list += "\n" + pokemon.name + " (" + pokemon.level + ")";
-            });
+            list += "\n**Liste des Pokemon** : *Nom* (*Niveau*)";
+            list += pokemonList.filter(pok => !pok.isEgg).map((pokemon) => {
+                return "\n" + pokemon.name + " (" + pokemon.level + ")";
+            }).join('');
         }else {
             list += "Liste inconnue : vous pouvez lister 'pokemon' ou 'arenes'."
         }
-        msg.channel.send(list);
+        msg.channel.send(list).catch((err) => console.log(err));
     }
 }
 
@@ -102,10 +103,10 @@ getRefactorArgs = function(args){
     if(timeData){
         const param = timeData[0];
         timeData = timeData.substring(1);
-        startTime = stringToDate(timeData);
+        startTime = utils.stringToDate(timeData);
         if(startTime && (param === "@" || param === "$")){
-            // on enlève 45 min s'il s'agit de l'heure de fin en param
-            if(param === "$") startTime = addMinToTime(startTime, -45);
+            // on enlève le temps d'un raid s'il s'agit de l'heure de fin en param
+            if(param === "$") startTime = utils.addMinToTime(startTime, -constants.raidDuration);
         } else {
             startTime = null;
         }
@@ -117,7 +118,6 @@ getRefactorArgs = function(args){
     }
 }
 
-// TODO : check si le poke est tjrs actif dans les raids
 // vérifie que le pokemon existe (dans le json)
 checkPokemon = function(pokeName) {
     return new Promise(function(resolve, reject) {
@@ -139,6 +139,7 @@ checkGym = function(gymName) {
 };
 
 // vérifie s'il y a une heure valide de renseignée
+// TODO : check si l'heure est valide !!!
 checkStartTime = function(startTime) {
     return new Promise(function(resolve, reject) {
         startTime ? resolve(startTime) : reject("Le format de l'heure est invalide : "
@@ -152,60 +153,46 @@ checkStartTime = function(startTime) {
 hasDuplicates = function(channelName, channels) {
     let hasDuplicates = false;
     const channelNameData = channelName.split('-');
-    const endTime = stringToDate(channelNameData[channelNameData.length - 1]);
+    const endTime = utils.stringToDate(channelNameData[channelNameData.length - 1]);
     const pokeAndGym = channelNameData.splice(1, channelNameData.length - 3).join('-');
 
     const possibleDuplicates = channels.filter(channel => new RegExp(pokeAndGym, 'gi').test(channel.name));
     possibleDuplicates.forEach(function(duplicate){
         const duplicateNameData = duplicate.name.split('-');
-        const duplicateEndTime = stringToDate(duplicateNameData[duplicateNameData.length - 1]);
+        const duplicateEndTime = utils.stringToDate(duplicateNameData[duplicateNameData.length - 1]);
          // TODO : check si on peut avoir 2 salon si c'est longtemps apres / pb si jour différent !!!
-        if(endTime.getTime() - duplicateEndTime.getTime() < 105 * 60 * 1000){
+        if(endTime.getTime() - duplicateEndTime.getTime() <
+          (constants.raidDuration + constants.raidPreparationDuration + 10) * 60 * 1000){
             hasDuplicates = true;
         }
     });
     return hasDuplicates;
 }
 
-// converti un string au format 00h00, 00:00 ou 10min en Date
-stringToDate = function(timeString) {
-    const regexFullTime = /^\d{1,2}(h|:)\d{1,2}$/gi;
-    const regexMin = /^\d{1,2}(m(in)?)?$/gi;
-    let time = null;
-
-    if (regexFullTime.test(timeString)) {
-        time = new Date();
-        time.setHours(parseInt(timeString.split(/h|:/i)[0]));
-        time.setMinutes(parseInt(timeString.split(/h|:/i)[1]));
-    } else if (regexMin.test(timeString)) {
-        time = new Date();
-        const minToAdd = parseInt(timeString);
-        time = addMinToTime(time, minToAdd);;
-    }
-    return time;
-}
-
 // envoie les msg d'info pour les salons de raids
 channelInfoMessage = function(pokemon, arene, startTime, channel){
     let msg = "**Pokemon** : " + pokemon.name;
-    const endTime = addMinToTime(startTime, 45);
-    const time = startTime.getHours() + "h" + zeroForMinutes(startTime)
-                + startTime.getMinutes() + " -> " + endTime.getHours() + "h"
-                + zeroForMinutes(endTime) + endTime.getMinutes();
+    const endTime = utils.addMinToTime(startTime, constants.raidDuration);
+    const time = utils.dateToString(startTime) + " -> " + utils.dateToString(endTime);
     msg += "\n**Horaire** : " + time;
     msg += "\n**Arène** : " + arene.name;
     msg += "\n**Adresse** : " + arene.address;
     msg += "\n**Google Maps** : https://www.google.com/maps?daddr=" + arene.maps;
 
-    channel.send(msg);
+    channel.send(msg).then(res => {
+        // pour épingler le message
+        res.pin().catch((err) => console.log(err));
+        createParticipantMessage(channel);
+    }).catch((err) => console.log(err));
 }
 
-// pour le format des minutes inférieurs à 10 min
-zeroForMinutes = function(time){
-    return time.getMinutes() < 10 ? "0" : "";
-}
+// création du message pour gérer la participation des joueurs aux raids
+createParticipantMessage = function(channel){
+    let msg = constants.participantsMsgHeader;
+    msg += utils.counterString(0, 0, 0, 0);
 
-// retourne une date avec un décalage en minute (min)
-addMinToTime = function(time, min){
-    return new Date(time.getTime() + min * 60 * 1000);
+    channel.send(msg).then(res => {
+        // pour épingler le message
+        res.pin().catch((err) => console.log(err));
+    }).catch((err) => console.log(err));
 }
