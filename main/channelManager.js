@@ -1,5 +1,6 @@
 const fs = require('fs');
 const utils = require('./utils.js');
+const constants = require('./constants.js');
 
 const pokemonList = JSON.parse(fs.readFileSync('././data/pokemon.json')).pokemonList.filter(pokemon => {
     return pokemon.isActif;
@@ -29,7 +30,7 @@ exports.createChannel = function (args, msg) {
             const startTime = res[2];
 
             // création du nom du salon
-            const endTime = utils.addMinToTime(startTime, utils.raidDuration);;
+            const endTime = utils.addMinToTime(startTime, constants.raidDuration);;
             const channelName = "0-" + pokemon.name + "-" + gym.name.split(' ').join('-')
                                 + "-fin-" + utils.dateToString(endTime);
 
@@ -50,7 +51,7 @@ exports.createChannel = function (args, msg) {
                         setTimeout(function(){
                             channel.delete().catch((err) => console.log(err));
                         }, 60 * 1000);
-                    }, 110 * 60 * 1000);
+                    }, (constants.raidDuration + constants.raidPreparationDuration + 10) * 60 * 1000);
 
                     msg.react('✅');
                 }).catch((err) => console.log(err));
@@ -105,7 +106,7 @@ getRefactorArgs = function(args){
         startTime = utils.stringToDate(timeData);
         if(startTime && (param === "@" || param === "$")){
             // on enlève le temps d'un raid s'il s'agit de l'heure de fin en param
-            if(param === "$") startTime = utils.addMinToTime(startTime, -utils.raidDuration);
+            if(param === "$") startTime = utils.addMinToTime(startTime, -constants.raidDuration);
         } else {
             startTime = null;
         }
@@ -160,7 +161,8 @@ hasDuplicates = function(channelName, channels) {
         const duplicateNameData = duplicate.name.split('-');
         const duplicateEndTime = utils.stringToDate(duplicateNameData[duplicateNameData.length - 1]);
          // TODO : check si on peut avoir 2 salon si c'est longtemps apres / pb si jour différent !!!
-        if(endTime.getTime() - duplicateEndTime.getTime() < 105 * 60 * 1000){
+        if(endTime.getTime() - duplicateEndTime.getTime() <
+          (constants.raidDuration + constants.raidPreparationDuration + 10) * 60 * 1000){
             hasDuplicates = true;
         }
     });
@@ -170,7 +172,7 @@ hasDuplicates = function(channelName, channels) {
 // envoie les msg d'info pour les salons de raids
 channelInfoMessage = function(pokemon, arene, startTime, channel){
     let msg = "**Pokemon** : " + pokemon.name;
-    const endTime = utils.addMinToTime(startTime, utils.raidDuration);
+    const endTime = utils.addMinToTime(startTime, constants.raidDuration);
     const time = utils.dateToString(startTime) + " -> " + utils.dateToString(endTime);
     msg += "\n**Horaire** : " + time;
     msg += "\n**Arène** : " + arene.name;
@@ -186,9 +188,8 @@ channelInfoMessage = function(pokemon, arene, startTime, channel){
 
 // création du message pour gérer la participation des joueurs aux raids
 createParticipantMessage = function(channel){
-    let msg = "**Liste des participants** :\nSession : 15h24\ntest datat\ntestd datat\nSession : 18h24\ntest datpppat";
-    msg += "\n**TOTAL** : " + utils.valor + " x**0** | "
-        + utils.mystic + " x**0** | "+ utils.instinct +" x**0** ";
+    let msg = constants.participantsMsgHeader;
+    msg += utils.counterString(0, 0, 0, 0);
 
     channel.send(msg).then(res => {
         // pour épingler le message

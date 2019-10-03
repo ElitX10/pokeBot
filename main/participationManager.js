@@ -1,4 +1,5 @@
 const utils = require('./utils.js');
+const constants = require('./constants.js');
 
 exports.handleParticipation = function(cmd, args, msg){
     const server = msg.guild;
@@ -8,53 +9,55 @@ exports.handleParticipation = function(cmd, args, msg){
             let participantData = getParticipantData(messContent);
             const userMessageData = getMsgData(args, msg);
 
-            // console.log(participantData);
-            console.log(userMessageData);
-
+            // vérification du format de l'heure
             checkTime(userMessageData.time, msg.channel.name).then((time) => {
+                // on supprime la propiété time de l'utilisateur
+                delete userMessageData.time;
                 if (time){
-                    console.log(time);
+                    // on prend une copie des user présent dans la session sans horaire
+                    let usersCopy;
+                    if(participantData[0].time === null){
+                        usersCopy = participantData[0].users;
+                    }
+                    let selectedSession = participantData.find((session) => {
+                        return session.time && session.time.getTime() === time.getTime();
+                    });
+                    // si une session avec cette horaire existe
+                    if (selectedSession) {
+                        selectedSession = changeUserDataInSession(selectedSession, cmd, userMessageData);
+                    } else { // sinon on créer la session
+                        if(cmd === "+"){
+                            let newSession = {
+                                time: time,
+                                // on met la copy des users avec le nvx user
+                                users: usersCopy.concat([userMessageData])
+                            };
+                            // TODO : gérer le cas ou l'utilisateur qui créer la sessions est déjà dans la liste usersCopy
+                            participantData.push(newSession);
+                            // on supprime les utilisateurs de la session sans horaire
+                            participantData[0].users = [0];
+                            // TODO message pour prevenir les autres users de la création de session
+                        }
+                    }
                 } else {
-
+                    let selectedSession = participantData.find((session) => {
+                        return session.time === null;
+                    });
+                    // si une session sans horaire existe :
+                    if(selectedSession){
+                        selectedSession = changeUserDataInSession(selectedSession, cmd, userMessageData);
+                    } else { // sinon on prend la session avec la plus petite horaire
+                        selectedSession = changeUserDataInSession(participantData[0], cmd, userMessageData);
+                    }
                 }
+                participantData = cleanData(participantData);
+                participationMsg.edit(convertDataToString(participantData)).then(() => {
+                    msg.react('✅');
+                }).catch(err=>console.log(err));
             }).catch((err) => {
                 // TODO : message du bot ?
-                console.log(err);
+                msg.channel.send(utils.mention(msg) + err);
             });
-
-            const msgHasSessionsTime = false;
-            const sessionExist = false;
-            const noSession = false;
-            if(msgHasSessionsTime){ //TODO gérer les sessions
-                if (sessionExist){
-                    // TODO prendre la session
-                } else {
-                    // TODO créer la session
-                }
-            } else {
-                // TODO trouver la session avec le plus de joueur
-            }
-            // TODO check cmd format
-            if(cmd === "+"){
-                const splitMsg = messContent.split('\n');
-                const msgStart = splitMsg[0];
-
-                // const nbr = getNumber(parseInt(args[0]));
-                // const userName = msg.member.nickname;
-                // const color = getColor(msg.member);
-                // const comment = args.splice(1).join(' ');
-                //
-                // let users = '\n' + nbr + ' ' + color + ' **' + userName + '** ' + comment + '\n';
-
-                // const mess = msgStart + users + msgEnd;
-                // participationMsg.edit(mess).catch(err=>console.log(err));
-            } else {
-                let msg = "**Liste des participants** :";
-                msg += "\n**TOTAL** : " + utils.valor + " x**0** | "
-                    + utils.mystic + " x**0** | "+ utils.instinct +" x**0** ";
-                participationMsg.edit(msg).catch(err=>console.log(err));
-            }
-
         }).catch(err => console.log(err));
     }
 }
@@ -64,7 +67,7 @@ getParticipationMsg = function(channel){
     return new Promise(function(resolve, reject){
         channel.fetchPinnedMessages().then(res => {
             const participationMsg = res.find(mess => {
-                return mess.content.split('\n')[0] === "**Liste des participants** :";
+                return mess.content.split('\n')[0] === constants.participantsMsgHeader;
             });
             resolve(participationMsg);
         }).catch(err => reject(err));
@@ -76,18 +79,20 @@ getParticipantData = function(msgContent){
     let data = msgContent.split('\n');
     data = data.slice(1, data.length - 1);
     let finalData;
-    if (isSessionDelimiter(data[0])) {
+    if (data.length !== 0 && isSessionDelimiter(data[0])) {
         finalData = [];
         let customSession;
         data.forEach(item => {
-            if(isSessionDelimiter(item)){
-                if(customSession) finalData.push(customSession);
-                customSession = {
-                    time: item.split(' : ')[1],
-                    users: []
+            if(item.split(' ')[0] !== "**TOTAL**"){
+                if(isSessionDelimiter(item)){ // nvlle session
+                    if(customSession) finalData.push(customSession);
+                    customSession = {
+                        time: utils.stringToDate(item.split(' : ')[1]),
+                        users: []
+                    }
+                } else { // ajout de item dans les users de la session
+                    customSession.users.push(getUserData(item));
                 }
-            } else {
-                customSession.users.push(item);
             }
         });
         finalData.push(customSession);
@@ -99,14 +104,35 @@ getParticipantData = function(msgContent){
             })
         }];
     }
-
-    // console.log(finalData);
-    // console.log(finalData[0].users);
     return finalData;
 }
 
 convertDataToString = function(data){
-
+    let mess = constants.participantsMsgHeader;
+    data.forEach((session) => {
+        if (session.time !== null) {
+            mess += "\nSession : " + utils.dateToString(session.time);
+        }
+        // compte des utilisateurs :
+        let nbrRed = countParticipant(session.users.filter(user => user.team === constants.valor));
+        let nbrBlue = countParticipant(session.users.filter(user => user.team === constants.mystic));
+        let nbrYellow = countParticipant(session.users.filter(user => user.team === constants.instinct));
+        let nbrOther = countParticipant(session.users.filter(user => user.team === constants.questionMark));
+        // passage des données des users en strings
+        mess += session.users.map((user) => {
+            if (constants.emojiListNumber[user.number - 1]){
+                user.number = constants.emojiListNumber[user.number - 1]
+            }
+            return "\n" + user.number + " " + user.team + " **" + user.userName + "** " + user.comment;
+        }).join('');
+        // total mess
+        mess += utils.counterString(nbrRed, nbrBlue, nbrYellow, nbrOther);
+    });
+    // on met un compteurs à 0 si il n'y a plus personne
+    if(data.length === 0){
+        mess += utils.counterString(0, 0, 0, 0);
+    }
+    return mess;
 }
 
 isSessionDelimiter = function(string){
@@ -118,8 +144,8 @@ isSessionDelimiter = function(string){
 getUserData = function(string){
     let dataString = string.split(' ');
     let nbr = dataString[0];
-    if(utils.emojiListNumber.includes(nbr)){
-        nbr = utils.emojiListNumber.indexOf(nbr) + 1;
+    if(constants.emojiListNumber.includes(nbr)){
+        nbr = constants.emojiListNumber.indexOf(nbr) + 1;
     } else {
         nbr = parseInt(nbr.replace(/\*/g, ''));
     }
@@ -131,7 +157,7 @@ getUserData = function(string){
     return {
         number: nbr,
         team: team,
-        user: userName,
+        userName: userName,
         comment: comment.replace(/^\s*/, '')
     }
 }
@@ -139,7 +165,7 @@ getUserData = function(string){
 // récupère les données du message de l'utilisateur
 getMsgData = function(args, msg){
     const nbr = parseInt(args[0]);
-    const userName = msg.member.nickname ? msg.member.nickname : msg.member.userName;
+    const userName = msg.member.nickname ? msg.member.nickname : msg.member.user.username;
     const team = getColor(msg.member);
     // on récupère l'heure de la session si elle existe
     let time = null;
@@ -150,11 +176,10 @@ getMsgData = function(args, msg){
         args = args.splice(1);
     }
     const comment = args.join(' ');
-
     return {
         number: nbr,
         team: team,
-        user: userName,
+        userName: userName,
         time: time,
         comment: comment.replace(/^\s*/, '')
     }
@@ -162,28 +187,28 @@ getMsgData = function(args, msg){
 
 // récupère la couleur d'un utilisateur
 getColor = function(member){
-    let color = utils.questionMark;
+    let color = constants.questionMark;
     if (member.roles.find(r => r.name === "Red team")) {
-        color = utils.valor;
+        color = constants.valor;
     } else if (member.roles.find(r => r.name === "Blue team")) {
-        color = utils.mystic;
+        color = constants.mystic;
     } else if (member.roles.find(r => r.name === "Yellow team")) {
-        color = utils.instinct;
+        color = constants.instinct;
     }
     return color;
 }
 
 // récupère le nombre de participation
 getNumber = function(number) {
-    return utils.emojiListNumber[number - 1] ?
-            utils.emojiListNumber[number - 1] : '**' + number + '**';
+    return constants.emojiListNumber[number - 1] ?
+            constants.emojiListNumber[number - 1] : '**' + number + '**';
 }
 
 // vérifie si l'heure de la session est comprise entre le début et la fin du raid
 checkTime = function(time, channelName){
     return new Promise(function(resolve, reject){
         const endTime = utils.stringToDate(channelName.split('-')[channelName.split('-').length - 1]);
-        const startTime = utils.addMinToTime(endTime, -utils.raidDuration);
+        const startTime = utils.addMinToTime(endTime, -constants.raidDuration);
         if (!time) resolve(null);
         if (time >= startTime && time < endTime){
             resolve(time);
@@ -191,4 +216,55 @@ checkTime = function(time, channelName){
             reject("Impossible de créer une session à " + utils.dateToString(time) + ".");
         }
     });
+}
+
+// gere l'ajout ou la suppression de participation d'un user dans une session
+changeUserDataInSession = function(session, cmd, userMessageData){
+    const currentSession = session;
+    // on cherche si l'utilisateur est déjà présent
+    let selectedUser = currentSession.users.find((user) => {
+        return user.userName === userMessageData.userName;
+    });
+    if(selectedUser){ // si il est présent on modifie le nbr de compte
+        selectedUser.comment = userMessageData.comment;
+        if (cmd === "+") {
+            selectedUser.number += userMessageData.number;
+        }else{
+            selectedUser.number -= userMessageData.number;
+        }
+    }else{ // sinon on ajoute l'utilisateur
+        if(cmd === "+"){
+            currentSession.users.push(userMessageData);
+        }
+    }
+    return currentSession;
+}
+
+cleanData = function(data){
+    let cleanData = data;
+    // on supprime les utilisateurs avec des nombres de participation <= 0
+    cleanData = cleanData.map((session) => {
+        session.users = session.users.filter((user)=>{
+            return user.number > 0;
+        });
+        return session;
+    });
+    // on supprime les sessions vides et on les tri par 'time'
+    cleanData = cleanData.filter((session)=>{
+        return session.users.length > 0;
+    }).sort(function(a,b){
+        return new Date(a.time) - new Date(b.time);
+    });
+    return cleanData;
+}
+
+// retourne le nombre de participation pour une liste de user
+countParticipant = function(users){
+    let total = 0;
+    if (users){
+        users.forEach((user) => {
+            total += user.number;
+        });
+    }
+    return total;
 }

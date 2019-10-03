@@ -1,3 +1,5 @@
+const constants = require('./constants.js');
+
 exports.checkChannel = function (expectedChannel, cmd, msg) {
     const rightChannel = msg.channel.name === expectedChannel;
     if (!rightChannel) msg.channel.send(exports.mention(msg) + "La commande '" + cmd
@@ -8,18 +10,6 @@ exports.checkChannel = function (expectedChannel, cmd, msg) {
 exports.mention = function(msg) {
     return "<@" + msg.member.user.id + "> ";
 }
-
-exports.raidDuration = 60;
-
-
-// emoji des équipes
-exports.valor = "<:valor:610808872961048602>";
-exports.mystic = "<:mystic:610809793904640019>";
-exports.instinct = "<:instinct:610809791253577738>";
-
-exports.questionMark = '❔';
-exports.emojiListNumber = [':one:',':two:',':three:',':four:',':five:',':six:',
-                    ':seven:',':eight:',':nine:',':keycap_ten:'];
 
 // retourne l'id de la catégory pour les raids
 exports.getRaidCatId = function(server) {
@@ -43,6 +33,10 @@ exports.stringToDate = function(timeString) {
         const minToAdd = parseInt(timeString);
         time = addMinToTime(time, minToAdd);;
     }
+    if (time) {
+        time.setMilliseconds(0);
+        time.setSeconds(0);
+    }
     return time;
 }
 
@@ -57,4 +51,14 @@ exports.addMinToTime = function(time, min){
 }
 addMinToTime = function(time, min){
     return new Date(time.getTime() + min * 60 * 1000);
+}
+
+exports.counterString = function(red, blue, yellow, other){
+    let msg = "\n**TOTAL** : " + constants.valor + " x**" + red + "** | "
+    + constants.mystic + " x**" + blue + "** | "+ constants.instinct
+    + " x**" + yellow + "**";
+    if (other > 0) {
+        msg += " | " + constants.questionMark + " x**" + other + "**"
+    }
+    return msg;
 }
