@@ -130,7 +130,7 @@ checkPokemon = function(pokeName) {
 // vérifie que l'arène existe (dans le json)
 checkGym = function(gymName) {
     return new Promise(function(resolve, reject) {
-        const gym = gymsList.find(gym => gym.name === gymName);
+        const gym = gymsList.find(gym => gym.name === gymName || gym.alias === gymName);
         gym ? resolve(gym) : reject("L'arène '" + gymName
             + "' n'est pas connue (ou est le nom de l'arène est mal écrit).\n"
             + "Vous pouvez voir la liste des arènes avec la commande '!liste arenes'"

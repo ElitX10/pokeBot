@@ -35,6 +35,7 @@ client.on('message', (msg) => {
                 case "raid":
                     channelManager.createChannel(args, msg);
                     break;
+                case "list":
                 case "liste":
                     channelManager.list(args[0], msg);
                     break;
