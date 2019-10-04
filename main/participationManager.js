@@ -4,6 +4,7 @@ const constants = require('./constants.js');
 exports.handleParticipation = function(cmd, args, msg){
     const server = msg.guild;
     if(msg.channel.parentID === utils.getRaidCatId(server)){
+        // récupération du message avec la liste des participants au raid
         getParticipationMsg(msg.channel).then((participationMsg) => {
             let messContent = participationMsg.content;
             let participantData = getParticipantData(messContent);
@@ -51,7 +52,7 @@ exports.handleParticipation = function(cmd, args, msg){
                     }
                 }
                 participantData = cleanData(participantData);
-                participationMsg.edit(convertDataToString(participantData)).then(() => {
+                participationMsg.edit(convertDataToString(participantData, msg)).then(() => {
                     msg.react('✅');
                 }).catch(err=>console.log(err));
             }).catch((err) => {
@@ -61,6 +62,8 @@ exports.handleParticipation = function(cmd, args, msg){
         }).catch(err => console.log(err));
     }
 }
+
+// TODO : fct pour call le pokemon 
 
 // récupère le message pour la participation à un raid
 getParticipationMsg = function(channel){
@@ -107,8 +110,9 @@ getParticipantData = function(msgContent){
     return finalData;
 }
 
-convertDataToString = function(data){
+convertDataToString = function(data, msg){
     let mess = constants.participantsMsgHeader;
+    let total = 0;
     data.forEach((session) => {
         if (session.time !== null) {
             mess += "\nSession : " + utils.dateToString(session.time);
@@ -118,6 +122,7 @@ convertDataToString = function(data){
         let nbrBlue = countParticipant(session.users.filter(user => user.team === constants.mystic));
         let nbrYellow = countParticipant(session.users.filter(user => user.team === constants.instinct));
         let nbrOther = countParticipant(session.users.filter(user => user.team === constants.questionMark));
+        total += nbrRed + nbrBlue + nbrYellow + nbrOther;
         // passage des données des users en strings
         mess += session.users.map((user) => {
             if (constants.emojiListNumber[user.number - 1]){
@@ -128,6 +133,7 @@ convertDataToString = function(data){
         // total mess
         mess += utils.counterString(nbrRed, nbrBlue, nbrYellow, nbrOther);
     });
+    changeChannelName(total, msg.channel);
     // on met un compteurs à 0 si il n'y a plus personne
     if(data.length === 0){
         mess += utils.counterString(0, 0, 0, 0);
@@ -267,4 +273,11 @@ countParticipant = function(users){
         });
     }
     return total;
+}
+
+// change le nom du salon en fct du nbr de participants
+changeChannelName = function(nbr, channel) {
+    let channelName = channel.name.split('-');
+    channelName[0] = nbr + "";
+    channel.setName(channelName.join('-')).catch(err => console.log(err));
 }
