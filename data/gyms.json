@@ -1,10 +1,56 @@
-{
-  "name": "Notre Dame de Bellecombe",
-  "address": "57 Rue d'Inkermann, 69006 Lyon",
-  "maps": "45.76619,4.865899"
-},
-{
-  "name": "Plaque de la villette",
-  "address": "306 Rue Saint-Antoine, 69003 Lyon",
-  "maps": "45.762766,4.862172"
-}
+{"gyms" :[
+    {
+        "name": "edouard glissant parc",
+        "alias": "edouard",
+        "address": "Parc Edouard Glissant, Rue Colin, 69100 Villeurbanne",
+        "maps": "45.776466,4.874352"
+    },
+    {
+        "name": "a la memoire d'alexis perroncel",
+        "alias": "perroncel",
+        "address": "36 Rue Alexis Perroncel, 69100 Villeurbanne",
+        "maps": "45.77477,4.87419"
+    },
+    {
+        "name": "memeory wall",
+        "alias": "wall",
+        "address": "98 Rue Francis de Pressensé, 69100 Villeurbanne",
+        "maps": "45.771118,4.875906"
+    },
+    {
+        "name": "des hommes et des vitres",
+        "alias": "hommes",
+        "address": "98 Rue Francis de Pressensé, 69100 Villeurbanne",
+        "maps": "45.77181,4.874063"
+    },
+    {
+        "name": "hommage a colin",
+        "alias": "colin",
+        "address": "71 Rue Colin, 69100 Villeurbanne",
+        "maps": "45.772034,4.873838"
+    },
+    {
+        "name": "cheminée de l'incinérateur",
+        "alias": "cheminée",
+        "address": "Esplanade Geneviève Anthonioz de Gaulle, 69100 Villeurbanne",
+        "maps": "45.77259,4.879356"
+    },
+    {
+        "name": "fresque murale birdy kids",
+        "alias": "fresque",
+        "address": "18 Rue Georges Courteline, 69100 Villeurbanne",
+        "maps": "45.778132,4.877591"
+    },
+    {
+        "name": "un chateau dans la ville",
+        "alias": "chateau",
+        "address": "90-104 Cours Emile Zola, 69100 Villeurbanne",
+        "maps": "45.770732,4.872293"
+    },
+    {
+        "name": "graffiti en l'air",
+        "alias": "graffiti",
+        "address": "38 Rue Francis de Pressensé, 69100 Villeurbanne",
+        "maps": "45.771577,4.870481"
+    }
+]}
