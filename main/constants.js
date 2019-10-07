@@ -1,5 +1,5 @@
 exports.raidDuration = 45;
-exports.raidPreparationDuration = 50;
+exports.raidPreparationDuration = 60;
 
 // emoji des équipes
 exports.valor = "<:valor:610808872961048602>";
