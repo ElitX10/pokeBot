@@ -16,7 +16,7 @@ exports.handleParticipation = function(cmd, args, msg){
                 delete userMessageData.time;
                 if (time){
                     // on prend une copie des user présent dans la session sans horaire
-                    let usersCopy;
+                    let usersCopy = [];
                     if(participantData[0].time === null){
                         usersCopy = participantData[0].users;
                     }
@@ -36,7 +36,9 @@ exports.handleParticipation = function(cmd, args, msg){
                             // TODO : gérer le cas ou l'utilisateur qui créer la sessions est déjà dans la liste usersCopy
                             participantData.push(newSession);
                             // on supprime les utilisateurs de la session sans horaire
-                            participantData[0].users = [0];
+                            if(participantData[0].time === null){
+                                participantData[0].users = [0];
+                            }
                             // TODO message pour prevenir les autres users de la création de session
                         }
                     }
@@ -63,8 +65,6 @@ exports.handleParticipation = function(cmd, args, msg){
     }
 }
 
-// TODO : fct pour call le pokemon 
-
 // récupère le message pour la participation à un raid
 getParticipationMsg = function(channel){
     return new Promise(function(resolve, reject){
@@ -80,6 +80,10 @@ getParticipationMsg = function(channel){
 // Récupère les données du message contenant les participations
 getParticipantData = function(msgContent){
     let data = msgContent.split('\n');
+    // on enlève les strings pour le style du msg
+    data = data.filter((string) => {
+        return string !== "```"
+    });
     data = data.slice(1, data.length - 1);
     let finalData;
     if (data.length !== 0 && isSessionDelimiter(data[0])) {
@@ -90,7 +94,7 @@ getParticipantData = function(msgContent){
                 if(isSessionDelimiter(item)){ // nvlle session
                     if(customSession) finalData.push(customSession);
                     customSession = {
-                        time: utils.stringToDate(item.split(' : ')[1]),
+                        time: utils.stringToDate(item.split(' de ')[1]),
                         users: []
                     }
                 } else { // ajout de item dans les users de la session
@@ -115,7 +119,9 @@ convertDataToString = function(data, msg){
     let total = 0;
     data.forEach((session) => {
         if (session.time !== null) {
-            mess += "\nSession : " + utils.dateToString(session.time);
+            mess += "\n```"
+            mess += "\nSession de " + utils.dateToString(session.time);
+            mess += "\n```"
         }
         // compte des utilisateurs :
         let nbrRed = countParticipant(session.users.filter(user => user.team === constants.valor));
@@ -142,7 +148,7 @@ convertDataToString = function(data, msg){
 }
 
 isSessionDelimiter = function(string){
-    return string.split(' : ')[0] === "Session"
+    return string.split(' de ')[0] === "Session"
 }
 
 // récupère les données d'un utilisateur à partir d'un
