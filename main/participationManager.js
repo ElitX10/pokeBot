@@ -63,7 +63,7 @@ exports.handleParticipation = function(cmd, args, msg){
             });
         }).catch(err => console.log(err));
     }
-}
+};
 
 // récupère le message pour la participation à un raid
 getParticipationMsg = function(channel){
@@ -75,7 +75,7 @@ getParticipationMsg = function(channel){
             resolve(participationMsg);
         }).catch(err => reject(err));
     });
-}
+};
 
 // Récupère les données du message contenant les participations
 getParticipantData = function(msgContent){
@@ -112,7 +112,7 @@ getParticipantData = function(msgContent){
         }];
     }
     return finalData;
-}
+};
 
 convertDataToString = function(data, msg){
     let mess = constants.participantsMsgHeader;
@@ -145,11 +145,11 @@ convertDataToString = function(data, msg){
         mess += utils.counterString(0, 0, 0, 0);
     }
     return mess;
-}
+};
 
 isSessionDelimiter = function(string){
     return string.split(' de ')[0] === "Session"
-}
+};
 
 // récupère les données d'un utilisateur à partir d'un
 // string du message contenant les participations
@@ -172,7 +172,7 @@ getUserData = function(string){
         userName: userName,
         comment: comment.replace(/^\s*/, '')
     }
-}
+};
 
 // récupère les données du message de l'utilisateur
 getMsgData = function(args, msg){
@@ -195,7 +195,7 @@ getMsgData = function(args, msg){
         time: time,
         comment: comment.replace(/^\s*/, '')
     }
-}
+};
 
 // récupère la couleur d'un utilisateur
 getColor = function(member){
@@ -208,13 +208,13 @@ getColor = function(member){
         color = constants.instinct;
     }
     return color;
-}
+};
 
 // récupère le nombre de participation
 getNumber = function(number) {
     return constants.emojiListNumber[number - 1] ?
             constants.emojiListNumber[number - 1] : '**' + number + '**';
-}
+};
 
 // vérifie si l'heure de la session est comprise entre le début et la fin du raid
 checkTime = function(time, channelName){
@@ -228,7 +228,7 @@ checkTime = function(time, channelName){
             reject("Impossible de créer une session à " + utils.dateToString(time) + ".");
         }
     });
-}
+};
 
 // gere l'ajout ou la suppression de participation d'un user dans une session
 changeUserDataInSession = function(session, cmd, userMessageData){
@@ -250,7 +250,7 @@ changeUserDataInSession = function(session, cmd, userMessageData){
         }
     }
     return currentSession;
-}
+};
 
 cleanData = function(data){
     let cleanData = data;
@@ -268,7 +268,7 @@ cleanData = function(data){
         return new Date(a.time) - new Date(b.time);
     });
     return cleanData;
-}
+};
 
 // retourne le nombre de participation pour une liste de user
 countParticipant = function(users){
@@ -279,11 +279,11 @@ countParticipant = function(users){
         });
     }
     return total;
-}
+};
 
 // change le nom du salon en fct du nbr de participants
 changeChannelName = function(nbr, channel) {
     let channelName = channel.name.split('-');
     channelName[0] = nbr + "";
     channel.setName(channelName.join('-')).catch(err => console.log(err));
-}
+};

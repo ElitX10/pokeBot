@@ -33,6 +33,7 @@ exports.stringToDate = function(timeString) {
         const minToAdd = parseInt(timeString);
         time = addMinToTime(time, minToAdd);;
     }
+    // on met les secondes et milliseconfs a 0 pour permettre les comparraisons
     if (time) {
         time.setMilliseconds(0);
         time.setSeconds(0);
