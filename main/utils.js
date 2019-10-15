@@ -24,8 +24,8 @@ exports.stringToDate = function(timeString) {
 
     if (regexFullTime.test(timeString)) {
         time = new Date();
-        const hour = timeString.split(/h|:/i)[0];
-        const minute = timeString.split(/h|:/i)[1] ? timeString.split(/h|:/i)[1] : "0";
+        const hour = timeString.split(/h|:/i)[0];// todo : mettre dans constants
+        const minute = timeString.split(/h|:/i)[1] ? timeString.split(/h|:/i)[1] : "0";// todo : mettre dans constants
         time.setHours(parseInt(hour));
         time.setMinutes(parseInt(minute));
     } else if (regexMin.test(timeString)) {

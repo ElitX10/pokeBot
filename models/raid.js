@@ -42,12 +42,13 @@ class Raid {
 
     /**
      * Log les infos de l'instance de Raid
+     * @returns {string}
      */
     toString() {
-        console.log('this.pokemon = ' + JSON.stringify(this.#pokemon) +
+        return '{this.pokemon = ' + JSON.stringify(this.#pokemon) +
             '\nthis.gym = ' + JSON.stringify(this.#gym) +
             '\nthis.startTime = ' + this.#startTime +
-            '\nthis.inputData = ' + JSON.stringify(this.#inputData));
+            '\nthis.inputData = ' + JSON.stringify(this.#inputData) + '}';
     }
 
     /**
