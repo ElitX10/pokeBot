@@ -7,9 +7,9 @@ class Session {
     #time;
     #users = [];
 
-    constructor(time, users) {
+    constructor(time, users = []) {
         this.#time = time;
-        if (users) this.#users = users;
+        this.#users = users;
     }
 
     get users() {
@@ -20,6 +20,14 @@ class Session {
         return this.#time;
     }
 
+    set users(users){
+        this.#users = users;
+    }
+
+    /**
+     * Retourne les infos de l'instance de Session
+     * @returns {string}
+     */
     toString() {
         return '{this.time = ' + JSON.stringify(this.#time) +
             '\nthis.users = ' + this.#users.map((user) => {
@@ -45,7 +53,7 @@ class Session {
     }
 
     /**
-     *
+     * Met à jour les données de la session à partir des données de raidMessage
      * @param {RaidMessage} raidMessage
      * @param {string} cmd
      */
@@ -64,18 +72,30 @@ class Session {
         }
     }
 
+    /**
+     * Nettoie la session en enlevant les users sans participation
+     */
     cleanSession() {
         this.#users = this.#users.filter((user) => {
             return user.isParticipating();
         });
     }
 
+    /**
+     * Retourne true si une session n'a pas d'utilisateur
+     * @returns {boolean}
+     */
     isEmpty() {
         return this.users.length === 0;
     }
 
-    getSessionToString(total) {
+    /**
+     * Renvoie les données concernant la session
+     * @returns {{total: int, string: string}}
+     */
+    getSessionToString() {
         let mess = '';
+        let total = 0;
         if (this.#time) {
             mess += '\n```';
             mess += '\nSession de ' + utils.dateToString(this.#time);
@@ -99,18 +119,20 @@ class Session {
         }
     }
 
-    // retourne le nombre de participation pour une couleur donnée
+    /**
+     * Retourne le nombre de participation pour une couleur donnée
+     * @param {string} color
+     * @returns {number}
+     * @private
+     */
     _countParticipant(color) {
         let colorUsers = this.#users.filter(user => user.isColor(color));
         let count = 0;
-        // todo if (colorUsers) {
         colorUsers.forEach((user) => {
             count += user.number;
         });
-        // todo }
         return count;
     }
-
 }
 
 module.exports = Session;

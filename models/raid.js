@@ -12,6 +12,10 @@ class Raid {
         startTime: null
     };
 
+    /**
+     * Créer une instance de Raid
+     * @param {Array<string>} raidArgs
+     */
     constructor(raidArgs) {
         // nom du pokemon
         this.#inputData.pokemonName = raidArgs[0].toLowerCase();
@@ -41,7 +45,7 @@ class Raid {
     }
 
     /**
-     * Log les infos de l'instance de Raid
+     * Retourne les infos de l'instance de Raid
      * @returns {string}
      */
     toString() {

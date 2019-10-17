@@ -8,13 +8,17 @@ class SessionsData {
 
     #sessions = [];
 
+    /**
+     * Créer une instance de Sessions
+     * @param {string} msgContent
+     */
     constructor(msgContent) {
         // on enlève les strings pour le style du msg
         let msgArray = msgContent.split('\n').filter((string) => {
             return string !== '```'
         });
         // on enlève la 1ere ligne qui ne contient pas de donnée
-        msgArray = msgArray.slice(1, msgArray.length - 1);
+        msgArray = msgArray.slice(1, msgArray.length - 1); // TODO remove les \n
 
         // s'il y a des sessions avec une heure de defini
         if (msgArray.length !== 0 && this._isSessionDelimiter(msgArray[0])) {
@@ -38,9 +42,13 @@ class SessionsData {
             })));
         }
 
-        console.log(this.toString());
+        // console.log(this.toString());
     }
 
+    /**
+     * Retourne les infos de l'instance de Sessions
+     * @returns {string}
+     */
     toString() {
         return '{this.sessions = [' + this.#sessions.map((session) => {
             return session.toString() + ',';
@@ -48,15 +56,16 @@ class SessionsData {
     }
 
     /**
-     *
+     * Met à jour les données des sessions à partir des données de raidMessage
      * @param {RaidMessage} raidMessage
      * @param {string} cmd
+     * @param {TextChannel} channel
      */
-    updateSessions(raidMessage, cmd) {
+    updateSessions(raidMessage, cmd, channel) {
         if (raidMessage.time) {
             // on prend une copie des user présent dans la session sans horaire
             let usersCopy = [];
-            if (!this.#sessions[0]) {
+            if (!this.#sessions[0].time) {
                 usersCopy = this.#sessions[0].users;
             }
             // session choisie par raidMessage
@@ -68,8 +77,8 @@ class SessionsData {
                 selectedSession.updateSession(raidMessage, cmd);
             } else { // sinon on créer la session
                 if (cmd === '+') {
-                    const newSession = new Session(raidMessage.time,
-                        usersCopy.push(this._getUserFrom(raidMessage)));
+                    usersCopy.push(this._getUserFrom(raidMessage));
+                    const newSession = new Session(raidMessage.time, usersCopy);
                     this.#sessions.push(newSession);
                     // on supprime les utilisateurs de la session sans horaire
                     // TODO : gérer le cas ou l'utilisateur qui créer la sessions est déjà dans la liste usersCopy
@@ -83,10 +92,16 @@ class SessionsData {
             this.#sessions[0].updateSession(raidMessage, cmd);
         }
         this._cleanData();
-        log(this.getSessionsToString());
+        const sessionsStringData = this.getSessionsToString();
+        this._changeChannelName(sessionsStringData.total, channel);
+        return sessionsStringData.string;
     }
 
-    getSessionsToString() { // todo apeler ca
+    /**
+     * Renvoie les données concernant les sessions
+     * @returns {{total: int, string: string}}
+     */
+    getSessionsToString() { // TODO : ajouter des \n pour la mise en page
         let mess = constants.participantsMsgHeader;
         let total = 0;
         mess += this.#sessions.map((session) => {
@@ -98,7 +113,10 @@ class SessionsData {
         if (this.#sessions.length === 0) {
             mess += utils.counterString(0, 0, 0, 0);
         }
-        return mess;
+        return {
+            string: mess,
+            total: total
+        };
     }
 
     /**
@@ -120,12 +138,22 @@ class SessionsData {
         if (session) this.#sessions.push(session);
     }
 
+    /**
+     * Retourne un utilisateur à partir des informations de raidMessage
+     * @param {RaidMessage} raidMessage
+     * @returns {User}
+     * @private
+     */
     _getUserFrom(raidMessage) {
         return new User(false, '',
             raidMessage.number, raidMessage.team,
             raidMessage.userName, raidMessage.comment);
     }
 
+    /**
+     * Nettoie les sessions (enlève les users qui ne participe plus et les sessions vides)
+     * @private
+     */
     _cleanData() {
         this.#sessions.forEach((session) => {
             session.cleanSession();
@@ -136,6 +164,18 @@ class SessionsData {
             return new Date(a.time) - new Date(b.time);
         });
     }
+
+    /**
+     * Change le nom du salon en fct du nbr de participants
+     * @param {int} nbr
+     * @param {TextChannel} channel
+     * @private
+     */
+    _changeChannelName(nbr, channel) {
+        let channelName = channel.name.split('-');
+        channelName[0] = nbr + '';
+        channel.setName(channelName.join('-')).catch(err => console.log(err));
+    };
 }
 
 module.exports = SessionsData;
