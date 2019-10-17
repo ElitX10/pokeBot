@@ -1,9 +1,9 @@
-let Discord = require('discord.js');
-let logger = require('winston');
-let auth = require('./data/auth.json');
-let colorManager = require('./main/colorManager.js');
-let channelManager = require('./main/channelManager.js');
-let participationManager = require('./main/participationManager.js');
+const Discord = require('discord.js');
+const logger = require('winston');
+const auth = require('./data/auth.json');
+const colorManager = require('./main/colorManager.js');
+const channelManager = require('./main/channelManager.js');
+const participationManager = require('./main/participationManager.js');
 
 // Configure logger settings
 logger.remove(logger.transports.Console);
@@ -47,5 +47,6 @@ client.on('message', (msg) => {
             participationManager.handleParticipation(symbole, args, msg);
         }
     }
+    // suppression des messages indiquant qu'un message à été épinglé
     if(msg.type === "PINS_ADD") msg.delete().catch((err) => console.log(err));
 });
