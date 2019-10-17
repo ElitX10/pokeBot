@@ -36,7 +36,7 @@ exports.getRaidCatId = function (server) {
 /**
  * Converti un string au format 00h00, 00:00 ou 10min en Date
  * @param {string} timeString
- * @returns {null}
+ * @returns {Date}
  */
 exports.stringToDate = function (timeString) {
     const regexFullTime = /^\d{1,2}(h|:)\d{0,2}$/gi;
