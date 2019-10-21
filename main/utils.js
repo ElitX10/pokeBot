@@ -11,7 +11,7 @@ exports.checkChannel = function (expectedChannel, cmd, msg) {
     const rightChannel = msg.channel.name === expectedChannel;
     // todo Trouver le channel dans le serveur pour avoir un lien cliquable
     if (!rightChannel) msg.channel.send(exports.mention(msg) + 'La commande \'' + cmd
-        + '\' doit être utilisée dans le salon ' + expectedChannel) + '.';
+        + '\' doit être utilisée dans le salon ' + expectedChannel + '.') ;
     return rightChannel;
 };
 

@@ -4,6 +4,7 @@ const auth = require('./data/auth.json');
 const colorManager = require('./main/colorManager.js');
 const channelManager = require('./main/channelManager.js');
 const participationManager = require('./main/participationManager.js');
+const raidManager = require('./main/raidManager.js');
 
 // Configure logger settings
 logger.remove(logger.transports.Console);
@@ -37,9 +38,10 @@ client.on('message', (msg) => {
                     break;
                 case "list":
                 case "liste":
-                    channelManager.list(args[0], msg);
+                    channelManager.list(args[0], msg); // TODO pv list pokemon dans les salons dans cat raid
                     break;
                 case "pokemon":
+                    raidManager.changePokemon(args[0], msg);
                     //TODO : cmd pour indique le pokemon dans un raid (si egg)
                     break;
             }

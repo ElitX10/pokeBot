@@ -89,7 +89,7 @@ exports.list = function (arg, msg) {
  * @param {Collection<Snowflake, GuildChannel>} channels
  * @returns {boolean}
  */
-hasDuplicates = function (channelName, channels) {
+hasDuplicates = function (channelName, channels) { // todo fix pb avec les egg
     let hasDuplicates = false;
     const channelNameData = channelName.split('-');
     const endTime = utils.stringToDate(channelNameData[channelNameData.length - 1]);
