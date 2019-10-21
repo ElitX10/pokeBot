@@ -149,7 +149,7 @@ class Raid {
      * @returns {Promise}
      * @private
      */
-    _checkStartTime() {
+    _checkStartTime() { // todo check l'heure en fct de l'heure actuel
         let self = this;
         return new Promise(function (resolve, reject) {
             if (self.#inputData.startTime) {

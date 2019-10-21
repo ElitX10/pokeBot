@@ -21,8 +21,7 @@ exports.createChannel = function (args, msg) {
             const channelName = raid.getRaidChannelName();
 
             // on vérifie si un salon n'a pas déjà été créé pour le raid
-            if (!hasDuplicates(channelName, server.channels)) {
-
+            checkDuplicates(channelName, server.channels).then(() => {
                 // création du salon
                 server.createChannel(channelName, {type: 'text'}).then((res) => {
                     const channel = res;
@@ -44,10 +43,9 @@ exports.createChannel = function (args, msg) {
                     // reaction sur le message pour confirmation
                     msg.react('✅');
                 }).catch((err) => console.log(err));
-            } else { // si un salon existe déjà
-                msg.channel.send(utils.mention(msg) + 'Un salon existe déjà pour ce raid.')
-                    .catch((err) => console.log(err));
-            }
+            }).catch((err) => {
+                msg.channel.send(utils.mention(msg) + err).catch((err) => console.log(err));
+            });
         }).catch((err) => {
             msg.channel.send(utils.mention(msg) + err).catch((err) => console.log(err));
         });
@@ -84,25 +82,28 @@ exports.list = function (arg, msg) {
 };
 
 /**
- * Retourne 'true' si un salon pour un raid existe déjà
+ * Vérifie si un salon pour un raid existe déjà ou non
  * @param {string} channelName
  * @param {Collection<Snowflake, GuildChannel>} channels
- * @returns {boolean}
+ * @param channelName
+ * @param channels
+ * @returns {Promise}
  */
-hasDuplicates = function (channelName, channels) { // todo fix pb avec les egg
-    let hasDuplicates = false;
-    const channelNameData = channelName.split('-');
-    const endTime = utils.stringToDate(channelNameData[channelNameData.length - 1]);
-    const pokeAndGym = channelNameData.splice(1, channelNameData.length - 3).join('-');
+checkDuplicates = function (channelName, channels) {
+    return new Promise(function (resolve, reject) {
+        const channelNameData = channelName.split('-');
+        const endTime = utils.stringToDate(channelNameData[channelNameData.length - 1]);
+        const gymName = channelNameData.splice(2, channelNameData.length - 3).join('-');
+        const totalRaidTime = (constants.raidDuration + constants.raidPreparationDuration + 10) * 60 * 1000;
 
-    const possibleDuplicates = channels.filter(channel => new RegExp(pokeAndGym, 'gi').test(channel.name));
-    possibleDuplicates.forEach(function (duplicate) {
-        const duplicateNameData = duplicate.name.split('-');
-        const duplicateEndTime = utils.stringToDate(duplicateNameData[duplicateNameData.length - 1]);
-        if (endTime.getTime() - duplicateEndTime.getTime() <
-            (constants.raidDuration + constants.raidPreparationDuration + 10) * 60 * 1000) {
-            hasDuplicates = true;
-        }
+        const possibleDuplicates = channels.filter(channel => new RegExp(gymName, 'gi').test(channel.name));
+        possibleDuplicates.forEach(function (duplicate) {
+            const duplicateNameData = duplicate.name.split('-');
+            const duplicateEndTime = utils.stringToDate(duplicateNameData[duplicateNameData.length - 1]);
+            if (endTime.getTime() - totalRaidTime < duplicateEndTime.getTime()) {
+                reject('Un salon existe déjà pour ce raid : <#' + duplicate.id + '>');
+            }
+        });
+        resolve();
     });
-    return hasDuplicates;
 };
