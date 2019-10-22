@@ -9,13 +9,13 @@ class RaidMessage {
     #comment;
     #time = null;
 
-    constructor(args, msg) { // todo : voir si extends User est possible et utile
+    constructor(args, msg) {
         this.#number = parseInt(args[0]);
         this.#userName = msg.member.nickname ? msg.member.nickname : msg.member.user.username;
         this.#team = this._getColor(msg.member);
 
         // heure si elle existe
-        const regexp = /^\d{1,2}(h|:)\d{0,2}$/gi; // todo : mettre dans constants
+        const regexp = /^\d{1,2}([h:])\d{0,2}$/gi;
         if (regexp.test(args[1])) {
             this.#time = utils.stringToDate(args[1]);
         }
