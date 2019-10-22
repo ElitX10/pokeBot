@@ -43,14 +43,14 @@ exports.getRaidCatId = function (server) {
  * @returns {Date}
  */
 exports.stringToDate = function (timeString) {
-    const regexFullTime = /^\d{1,2}(h|:)\d{0,2}$/gi;
+    const regexFullTime = /^\d{1,2}([h:])\d{0,2}$/gi;
     const regexMin = /^\d{1,2}(m(in)?)?$/gi;
     let time = null;
 
     if (regexFullTime.test(timeString)) {
         time = new Date();
-        const hour = timeString.split(/h|:/i)[0];// todo : mettre dans constants
-        const minute = timeString.split(/h|:/i)[1] ? timeString.split(/h|:/i)[1] : '0';// todo : mettre dans constants
+        const hour = timeString.split(/[h:]/i)[0];
+        const minute = timeString.split(/[h:]/i)[1] ? timeString.split(/[h:]/i)[1] : '0';
         time.setHours(parseInt(hour));
         time.setMinutes(parseInt(minute));
     } else if (regexMin.test(timeString)) {

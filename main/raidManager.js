@@ -6,27 +6,29 @@ exports.changePokemon = function (arg, msg) {
     if (msg.channel.parentID === utils.getRaidCatId(server)) {
         // récupération du message avec les infos du raid
         getRaidMessage(msg.channel).then((raidMsg) => {
+            const egg = msg.channel.name.split('-')[1];
             let msgContent = raidMsg.content.split('\n');
-            const egg = msgContent[0].split(' : ')[1];
             if (isEgg(egg)) {
                 const eggLevel = parseInt(egg.substring(3, 4));
-                const pokemon = constants.pokemonList.find(pokemon => {
-                    return pokemon.level === eggLevel && pokemon.name === arg;
-                });
-                if (pokemon) {
-                    msgContent[0] = '**Pokemon** : ' + pokemon.name;
-                    raidMsg.edit(msgContent.join('\n')).then(() => {
-                        changeChannelName(msg.channel, pokemon.name);
-                        msg.react('✅');
-                    }).catch(err => console.log(err));
+                if (arg === 'liste' || arg === 'list') {
+                    listPokemonForLevel(msg, eggLevel);
                 } else {
-                    msg.channel.send(utils.mention(msg) + arg + " n'est pas disponible dans les raids de niveau " + eggLevel);
+                    const pokemon = constants.pokemonList.find(pokemon => {
+                        return pokemon.level === eggLevel && pokemon.name === arg;
+                    });
+                    if (pokemon) {
+                        msgContent[0] = '**Pokemon** : ' + pokemon.name;
+                        raidMsg.edit(msgContent.join('\n')).then(() => {
+                            changeChannelName(msg.channel, pokemon.name);
+                            msg.react('✅');
+                        }).catch(err => console.log(err));
+                    } else {
+                        msg.channel.send(utils.mention(msg) + arg + ' n\'est pas disponible dans les raids de niveau ' + eggLevel);
+                    }
                 }
             } else {
-                msg.channel.send(utils.mention(msg) + "Le pokemon est déjà connu : " + egg);
+                msg.channel.send(utils.mention(msg) + 'Le pokemon est déjà connu : ' + egg);
             }
-
-
         }).catch(err => console.log(err));
     }
 };
@@ -51,4 +53,14 @@ changeChannelName = function (channel, pokemonName) {
     let channelName = channel.name.split('-');
     channelName[1] = pokemonName;
     channel.setName(channelName.join('-')).catch(err => console.log(err));
+};
+
+listPokemonForLevel = function (msg, eggLevel) {
+    let mess = utils.mention(msg) + 'Liste des pokemon pour les raids de niveau ' + eggLevel + ' :';
+    mess += constants.pokemonList.filter((pokemon) => {
+        return pokemon.level === eggLevel && !pokemon.isEgg;
+    }).map((pokemon) =>{
+        return '\n' + pokemon.name;
+    }).join('');
+    msg.channel.send(mess);
 };

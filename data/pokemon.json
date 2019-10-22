@@ -1,176 +1,178 @@
-{"pokemonList": [
+{
+  "pokemonList": [
     {
-        "name": "rayquaza",
-        "isEgg": false,
-        "level": 5,
-        "isActif": false
+      "name": "rayquaza",
+      "isEgg": false,
+      "level": 5,
+      "isActif": false
     },
     {
-        "name": "lixy",
-        "isEgg": false,
-        "level": 1,
-        "isActif": true
+      "name": "lixy",
+      "isEgg": false,
+      "level": 1,
+      "isActif": true
     },
     {
-        "name": "baudrive",
-        "isEgg": false,
-        "level": 1,
-        "isActif": true
+      "name": "baudrive",
+      "isEgg": false,
+      "level": 1,
+      "isActif": true
     },
     {
-        "name": "ratentif",
-        "isEgg": false,
-        "level": 1,
-        "isActif": true
+      "name": "ratentif",
+      "isEgg": false,
+      "level": 1,
+      "isActif": true
     },
     {
-        "name": "tic",
-        "isEgg": false,
-        "level": 1,
-        "isActif": true
+      "name": "tic",
+      "isEgg": false,
+      "level": 1,
+      "isActif": true
     },
     {
-        "name": "noadkoko",
-        "isEgg": false,
-        "level": 2,
-        "isActif": true
+      "name": "noadkoko",
+      "isEgg": false,
+      "level": 2,
+      "isActif": true
     },
     {
-        "name": "feuforêve",
-        "isEgg": false,
-        "level": 2,
-        "isActif": true
+      "name": "feuforêve",
+      "isEgg": false,
+      "level": 2,
+      "isActif": true
     },
     {
-        "name": "farfuret",
-        "isEgg": false,
-        "level": 2,
-        "isActif": true
+      "name": "farfuret",
+      "isEgg": false,
+      "level": 2,
+      "isActif": true
     },
     {
-        "name": "ténéfix",
-        "isEgg": false,
-        "level": 2,
-        "isActif": true
+      "name": "ténéfix",
+      "isEgg": false,
+      "level": 2,
+      "isActif": true
     },
     {
-        "name": "mysdibule",
-        "isEgg": false,
-        "level": 2,
-        "isActif": true
+      "name": "mysdibule",
+      "isEgg": false,
+      "level": 2,
+      "isActif": true
     },
     {
-        "name": "raichu",
-        "isEgg": false,
-        "level": 2,
-        "isActif": true
+      "name": "raichu",
+      "isEgg": false,
+      "level": 2,
+      "isActif": true
     },
     {
-        "name": "mackogneur",
-        "isEgg": false,
-        "level": 2,
-        "isActif": true
+      "name": "mackogneur",
+      "isEgg": false,
+      "level": 2,
+      "isActif": true
     },
     {
-        "name": "ectoplasma",
-        "isEgg": false,
-        "level": 2,
-        "isActif": true
+      "name": "ectoplasma",
+      "isEgg": false,
+      "level": 2,
+      "isActif": true
     },
     {
-        "name": "granbull",
-        "isEgg": false,
-        "level": 2,
-        "isActif": true
+      "name": "granbull",
+      "isEgg": false,
+      "level": 2,
+      "isActif": true
     },
     {
-        "name": "mammochon",
-        "isEgg": false,
-        "level": 2,
-        "isActif": true
+      "name": "mammochon",
+      "isEgg": false,
+      "level": 2,
+      "isActif": true
     },
     {
-        "name": "ossatueur",
-        "isEgg": false,
-        "level": 3,
-        "isActif": true
+      "name": "ossatueur",
+      "isEgg": false,
+      "level": 3,
+      "isActif": true
     },
     {
-        "name": "dracolosse",
-        "isEgg": false,
-        "level": 3,
-        "isActif": true
+      "name": "dracolosse",
+      "isEgg": false,
+      "level": 3,
+      "isActif": true
     },
     {
-        "name": "togetic",
-        "isEgg": false,
-        "level": 3,
-        "isActif": true
+      "name": "togetic",
+      "isEgg": false,
+      "level": 4,
+      "isActif": true
     },
     {
-        "name": "démolosse",
-        "isEgg": false,
-        "level": 3,
-        "isActif": true
+      "name": "démolosse",
+      "isEgg": false,
+      "level": 4,
+      "isActif": true
     },
     {
-        "name": "absol",
-        "isEgg": false,
-        "level": 3,
-        "isActif": true
+      "name": "absol",
+      "isEgg": false,
+      "level": 4,
+      "isActif": true
     },
     {
-        "name": "kyogre",
-        "isEgg": false,
-        "level": 5,
-        "isActif": false
+      "name": "kyogre",
+      "isEgg": false,
+      "level": 5,
+      "isActif": false
     },
     {
-        "name": "giratina",
-        "isEgg": false,
-        "level": 5,
-        "isActif": true
+      "name": "giratina",
+      "isEgg": false,
+      "level": 5,
+      "isActif": true
     },
     {
-        "name": "deoxys",
-        "isEgg": false,
-        "level": 5,
-        "isActif": true
+      "name": "deoxys",
+      "isEgg": false,
+      "level": 5,
+      "isActif": true
     },
     {
-        "name": "mewtwo",
-        "isEgg": false,
-        "level": 5,
-        "isActif": true
+      "name": "mewtwo",
+      "isEgg": false,
+      "level": 5,
+      "isActif": true
     },
     {
-        "name": "egg1",
-        "isEgg": true,
-        "level": 1,
-        "isActif": true
+      "name": "egg1",
+      "isEgg": true,
+      "level": 1,
+      "isActif": true
     },
     {
-        "name": "egg2",
-        "isEgg": true,
-        "level": 2,
-        "isActif": true
+      "name": "egg2",
+      "isEgg": true,
+      "level": 2,
+      "isActif": true
     },
     {
-        "name": "egg3",
-        "isEgg": true,
-        "level": 3,
-        "isActif": true
+      "name": "egg3",
+      "isEgg": true,
+      "level": 3,
+      "isActif": true
     },
     {
-        "name": "egg4",
-        "isEgg": true,
-        "level": 4,
-        "isActif": true
+      "name": "egg4",
+      "isEgg": true,
+      "level": 4,
+      "isActif": true
     },
     {
-        "name": "egg5",
-        "isEgg": true,
-        "level": 5,
-        "isActif": true
+      "name": "egg5",
+      "isEgg": true,
+      "level": 5,
+      "isActif": true
     }
-]}
+  ]
+}
