@@ -9,9 +9,13 @@ const constants = require('./constants.js');
  */
 exports.checkChannel = function (expectedChannel, cmd, msg) {
     const rightChannel = msg.channel.name === expectedChannel;
-    // todo Trouver le channel dans le serveur pour avoir un lien cliquable
-    if (!rightChannel) msg.channel.send(exports.mention(msg) + 'La commande \'' + cmd
-        + '\' doit être utilisée dans le salon ' + expectedChannel + '.') ;
+    if (!rightChannel) {
+        const channelId = msg.guild.channels.find((channel) => {
+            return channel.name === expectedChannel;
+        }).id;
+        msg.channel.send(exports.mention(msg) + 'La commande \'' + cmd
+            + '\' doit être utilisée dans le salon <#' + channelId + '>.') ;
+    }
     return rightChannel;
 };
 

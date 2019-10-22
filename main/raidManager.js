@@ -21,11 +21,9 @@ exports.changePokemon = function (arg, msg) {
                     }).catch(err => console.log(err));
                 } else {
                     msg.channel.send(utils.mention(msg) + arg + " n'est pas disponible dans les raids de niveau " + eggLevel);
-                    // todo message comme quoi pokemon name n'est pas dans la liste des pokemon lvl 'eggLevel'
                 }
             } else {
                 msg.channel.send(utils.mention(msg) + "Le pokemon est déjà connu : " + egg);
-                // todo message pour dire que le pokemon est déjà connu
             }
 
 
