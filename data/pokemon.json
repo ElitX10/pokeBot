@@ -1,13 +1,25 @@
 {
   "pokemonList": [
     {
-      "name": "rayquaza",
+      "name": "lixy",
       "isEgg": false,
-      "level": 5,
+      "level": 1,
       "isActif": false
     },
     {
-      "name": "lixy",
+      "name": "carapuce",
+      "isEgg": false,
+      "level": 1,
+      "isActif": true
+    },
+    {
+      "name": "salamèche",
+      "isEgg": false,
+      "level": 1,
+      "isActif": true
+    },
+    {
+      "name": "bulbizarre",
       "isEgg": false,
       "level": 1,
       "isActif": true
@@ -22,7 +34,7 @@
       "name": "ratentif",
       "isEgg": false,
       "level": 1,
-      "isActif": true
+      "isActif": false
     },
     {
       "name": "tic",
@@ -31,13 +43,19 @@
       "isActif": true
     },
     {
-      "name": "noadkoko",
+      "name": "feuforêve",
       "isEgg": false,
-      "level": 2,
+      "level": 1,
       "isActif": true
     },
     {
-      "name": "feuforêve",
+      "name": "noadkoko",
+      "isEgg": false,
+      "level": 2,
+      "isActif": false
+    },
+    {
+      "name": "tutafeh",
       "isEgg": false,
       "level": 2,
       "isActif": true
@@ -61,37 +79,43 @@
       "isActif": true
     },
     {
-      "name": "raichu",
-      "isEgg": false,
-      "level": 2,
-      "isActif": true
-    },
-    {
       "name": "mackogneur",
       "isEgg": false,
       "level": 2,
-      "isActif": true
-    },
-    {
-      "name": "ectoplasma",
-      "isEgg": false,
-      "level": 2,
-      "isActif": true
+      "isActif": false
     },
     {
       "name": "granbull",
       "isEgg": false,
       "level": 2,
-      "isActif": true
+      "isActif": false
     },
     {
       "name": "mammochon",
       "isEgg": false,
       "level": 2,
+      "isActif": false
+    },
+    {
+      "name": "raichu",
+      "isEgg": false,
+      "level": 3,
       "isActif": true
     },
     {
-      "name": "ossatueur",
+      "name": "ectoplasma",
+      "isEgg": false,
+      "level": 3,
+      "isActif": true
+    },
+    {
+      "name": "sharpedo",
+      "isEgg": false,
+      "level": 3,
+      "isActif": true
+    },
+    {
+      "name": "moufflair",
       "isEgg": false,
       "level": 3,
       "isActif": true
@@ -100,10 +124,28 @@
       "name": "dracolosse",
       "isEgg": false,
       "level": 3,
+      "isActif": false
+    },
+    {
+      "name": "ossatueur",
+      "isEgg": false,
+      "level": 4,
       "isActif": true
     },
     {
       "name": "togetic",
+      "isEgg": false,
+      "level": 4,
+      "isActif": false
+    },
+    {
+      "name": "tyranocif",
+      "isEgg": false,
+      "level": 4,
+      "isActif": true
+    },
+    {
+      "name": "noctali",
       "isEgg": false,
       "level": 4,
       "isActif": true
@@ -112,7 +154,7 @@
       "name": "démolosse",
       "isEgg": false,
       "level": 4,
-      "isActif": true
+      "isActif": false
     },
     {
       "name": "absol",
@@ -130,16 +172,28 @@
       "name": "giratina",
       "isEgg": false,
       "level": 5,
-      "isActif": true
+      "isActif": false
     },
     {
       "name": "deoxys",
       "isEgg": false,
       "level": 5,
-      "isActif": true
+      "isActif": false
     },
     {
       "name": "mewtwo",
+      "isEgg": false,
+      "level": 5,
+      "isActif": true
+    },
+    {
+      "name": "rayquaza",
+      "isEgg": false,
+      "level": 5,
+      "isActif": false
+    },
+    {
+      "name": "darkrai",
       "isEgg": false,
       "level": 5,
       "isActif": true
